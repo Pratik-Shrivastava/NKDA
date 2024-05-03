@@ -5,3 +5,4 @@ flask-restx
 Flask-SQLAlchemy
 flask-swagger-ui
 psycopg2
+flask_jwt_extended
