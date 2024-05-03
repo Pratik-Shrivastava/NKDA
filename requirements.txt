@@ -1,0 +1,7 @@
+Flask
+Flask-Cors
+flask-marshmallow
+flask-restx
+Flask-SQLAlchemy
+flask-swagger-ui
+psycopg2
