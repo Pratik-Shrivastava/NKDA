@@ -33,7 +33,7 @@ def update_user_response() -> any:
 
 
 def get_user_response() -> any:
-    return api.model('updateUser Response', {
+    return api.model('getUser Response', {
         'code': fields.Integer(default=SUCCESS_CODE),
         'message': fields.String(default=GET_SUCCESS_MESSGAE),
         'data': fields.Nested(USER_RESPONSE_MODEL)
@@ -41,7 +41,7 @@ def get_user_response() -> any:
 
 
 def get_user_list_response() -> any:
-    return api.model('updateUser Response', {
+    return api.model('getUserList Response', {
         'code': fields.Integer(default=SUCCESS_CODE),
         'message': fields.String(default=GET_ALL_SUCCESS_MESSGAE),
         'data': fields.List(fields.Nested(USER_RESPONSE_MODEL))

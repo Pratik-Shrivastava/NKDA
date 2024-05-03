@@ -1,12 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
-from jwt import PyJWTError
 from app.app_config.config import DB_URI, JWT_SECRET_KEY
 from flask_jwt_extended import JWTManager
 
-# importing routes
 from app import routes
 
 # instantiating required classes
@@ -22,9 +20,10 @@ app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 db: SQLAlchemy = SQLAlchemy(app)
 jwt = JWTManager(app)
 
+# registering routes for each sub-folder in routes
 app.register_blueprint(routes.blueprint)
 app.config['RESTX_MASK_SWAGGER'] = False
 
 @jwt.unauthorized_loader
 def unauthorized_response(callback):
-    return jsonify({'code': 401, 'message': 'Missing or invalid token'}), 401
+    return {'code': 401, 'message': 'Missing or invalid token'}

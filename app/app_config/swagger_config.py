@@ -11,15 +11,8 @@ SWAG_AUTH: dict = {
 }
 
 SWAG_VERSION: str = '3.0'
-SWAG_TITLE: str = 'Data History API'
-SWAG_DESCRIPTION: str = 'Powered by Dibwas Websoft Technologies LLP'
+SWAG_TITLE: str = 'NKDA API'
+SWAG_DESCRIPTION: str = 'Powered by DC Comics Universe'
 SWAG_DOC_URL: str = '/swagger-ui/'
 SWAG_BASE_URL: str = '/nkda/v1'
 SECURITY: list = ['Authorization']
-
-RESPONSE = {
-    SUCCESS_CODE: SUCCESS_MESSGAE,
-    UN_AUTHORIZED_CODE: UNAUTHORISED_MESSGAE,
-    VALIDATION_ERROR_CODE: VALIDATION_ERROR_MESSGAE,
-    EXCEPTION_CODE: EXCEPTION_MESSGAE
-}

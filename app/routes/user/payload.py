@@ -1,5 +1,5 @@
-from app.routes import api
 from flask_restx import fields
+from app.routes import api
 
 
 def login_payload() -> list:

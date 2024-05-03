@@ -1,2 +1,5 @@
 def add_user(user):
-    return user
+    '''
+    Add User
+    '''
+    pass
