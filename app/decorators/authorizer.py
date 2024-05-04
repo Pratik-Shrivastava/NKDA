@@ -12,6 +12,8 @@ def is_authorized(required_roles_enum: list):
             try:
                 token = request.headers.get('Authorization').split('Bearer ')[1]
                 jwt_data = decode_token(token)
+                username = jwt_data.get('username')
+                user_id = jwt_data.get('user_id')
                 roles: list = jwt_data.get('roles', [])
                 exp: int = jwt_data['exp']
                 current_time: datetime = datetime.now()
@@ -23,6 +25,14 @@ def is_authorized(required_roles_enum: list):
 
                 if current_time > datetime.fromtimestamp(exp):
                     return {'code': 401, 'message': 'Token has expired'}
+                
+                # TODO: auditrail
+                arguments = request.args.to_dict()
+                try:
+                    payload = request.get_json()
+                except Exception as e:
+                    payload = {}
+
 
                 return func(*args, **kwargs, jwt_data=jwt_data)
             except Exception as e:

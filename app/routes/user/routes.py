@@ -54,7 +54,8 @@ class Login(Resource):
                 expires_delta=datetime.timedelta(hours=24),
                 additional_claims={
                     'roles': [roles.as_dict()['name'] for roles in user_info.user_roles],
-                    'username': username
+                    'username': username,
+                    'user_id': user_info.id
                 }
             )
 
@@ -134,7 +135,7 @@ class GetUser(Resource):
     @is_authorized([USER_ROLE.ADMIN])
     def get(self, jwt_data):
         try:
-            arguments = request.args
+            arguments = request.args.to_dict()
             valid, validation_message = validate_get_user_payload(arguments)
 
             if not valid:

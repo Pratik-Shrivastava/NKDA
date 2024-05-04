@@ -59,7 +59,7 @@ def validate_update_user_payload(payload: dict) -> tuple[bool, str]:
     return validate_add_user_payload(payload)
 
 
-def validate_get_user_payload(args: ImmutableMultiDict) -> tuple[bool, str]:
+def validate_get_user_payload(args: dict) -> tuple[bool, str]:
 
     if (not args.get('id')):
         return False, 'id is required'
