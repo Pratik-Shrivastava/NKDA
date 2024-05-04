@@ -5,8 +5,16 @@ from flask_restx import fields
 
 USER_RESPONSE_MODEL: any = api.model('user', {
     'id': fields.Integer,
+    'username': fields.String,
     'first_name': fields.String,
-    'last_name': fields.String
+    'last_name': fields.String,
+    'password': fields.String,
+    'phone': fields.String,
+    'email': fields.String,
+    'gender': fields.String,
+    'active': fields.Boolean,
+    'date_of_join': fields.Integer(description='date in epoch format'),
+    'roles': fields.List(fields.String)
 })
 
 

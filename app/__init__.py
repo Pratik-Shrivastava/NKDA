@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from app.app_config.config import DB_URI, JWT_SECRET_KEY
 from flask_jwt_extended import JWTManager
 
-from app import routes
 
 # instantiating required classes
 app: Flask = Flask(__name__)
@@ -19,6 +18,9 @@ app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 
 db: SQLAlchemy = SQLAlchemy(app)
 jwt = JWTManager(app)
+
+
+from app import routes
 
 # registering routes for each sub-folder in routes
 app.register_blueprint(routes.blueprint)

@@ -7,7 +7,7 @@ SERVER_PORT: str = os.environ.get('SERVER_PORT', '5000')
 
 POSTGRES: dict = {
     'user': os.environ.get('POSTGRES_USER', 'postgres'),
-    'db': os.environ.get('POSTGRES_DB', 'nkda-db'),
+    'db': os.environ.get('POSTGRES_DB', 'nkda_db'),
     'host': os.environ.get('POSTGRES_HOST', '127.0.0.1'),
     'password': urllib.parse.quote(os.environ.get('POSTGRES_PASSWORD', '2580')),
     'port': os.environ.get('POSTGRES_PORT', '5432')

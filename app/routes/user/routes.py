@@ -15,6 +15,8 @@ from app.routes import api
 from app.routes.user.payload import *
 from app.routes.user.response import *
 from app.routes.user.service import *
+from app.routes.user.validator import *
+
 
 logger = get_logger(__name__)
 ns = api.namespace(
@@ -22,13 +24,6 @@ ns = api.namespace(
     description='API connected to user module',
     ordered=False
 )
-
-
-# Mock user data for demonstration purposes
-users: dict = {
-    'user1': {'password': 'password1', 'roles': ['ADMIN', 'USER']},
-    'user2': {'password': 'password2', 'roles': ['USER']}
-}
 
 
 @ns.route('/login', methods=['POST'])
@@ -39,24 +34,36 @@ class Login(Resource):
     def post(self):
         try:
             payload = request.get_json()
-            username = payload['username']
-            password = payload['password']
+            valid, validation_message = validate_login_payload(payload)
 
-            if username in users and users[username]['password'] == password:
-                roles = users[username]['roles']
-                access_token = create_access_token(
-                    identity=username,
-                    expires_delta=datetime.timedelta(hours=24),
-                    additional_claims={'roles': roles, 'username': username}
-                )
-                
-                return {
-                    'code': SUCCESS_CODE,
-                    'message': SUCCESS_MESSGAE,
-                    'jwt': access_token
-                }
-            else:
+            if not valid:
+                return {'code': 400, 'message': validation_message}
+
+            username: str = payload.get('username')
+            password: str = payload.get('password')
+
+            user_info = get_user_by_username_and_password(username, password)
+
+            if (not user_info):
                 return {'code': 401, 'message': 'Invalid username or password'}
+
+            # TODO: Add OTP verification
+
+            access_token = create_access_token(
+                identity=username,
+                expires_delta=datetime.timedelta(hours=24),
+                additional_claims={
+                    'roles': [roles.as_dict()['name'] for roles in user_info.user_roles],
+                    'username': username
+                }
+            )
+
+            return {
+                'code': SUCCESS_CODE,
+                'message': SUCCESS_MESSGAE,
+                'jwt': access_token
+            }
+
         except Exception as e:
             logger.error(traceback.format_exc())
             return {'code': EXCEPTION_CODE, 'message': str(e)}
@@ -72,7 +79,18 @@ class AddUser(Resource):
     @is_authorized([USER_ROLE.ADMIN])
     def post(self, jwt_data):
         try:
-            print(jwt_data)
+            payload = request.get_json()
+            valid, validation_message = validate_add_user_payload(payload)
+
+            if not valid:
+                return {'code': 400, 'message': validation_message}
+
+            user_id = add_user(payload)
+
+            # TODO: send email
+
+            return {'code': SUCCESS_CODE, 'message': INSERT_SUCCESS_MESSGAE}
+
         except Exception as e:
             logger.error(traceback.format_exc())
             return {'code': EXCEPTION_CODE, 'message': str(e)}
@@ -85,9 +103,22 @@ class UpdateUser(Resource):
     @ns.expect(*update_user_payload())
     @ns.response(SUCCESS_CODE, UPDATE_SUCCESS_MESSGAE, update_user_response())
     @jwt_required()
-    def patch(self):
+    @is_authorized([USER_ROLE.ADMIN])
+    def patch(self, jwt_data):
         try:
-            pass
+            payload = request.get_json()
+            valid, validation_message = validate_update_user_payload(payload)
+
+            if not valid:
+                return {'code': 400, 'message': validation_message}
+
+            updated = update_user(payload)
+
+            if not updated:
+                return {'code': 400, 'message': UPDATE_ERROR_MESSGAE}
+
+            return {'code': SUCCESS_CODE, 'message': UPDATE_SUCCESS_MESSGAE}
+
         except Exception as e:
             logger.error(traceback.format_exc())
             return {'code': EXCEPTION_CODE, 'message': str(e)}
@@ -100,9 +131,23 @@ class GetUser(Resource):
     @ns.expect(*get_user_payload())
     @ns.response(SUCCESS_CODE, GET_SUCCESS_MESSGAE, get_user_response())
     @jwt_required()
-    def get(self):
+    @is_authorized([USER_ROLE.ADMIN])
+    def get(self, jwt_data):
         try:
-            pass
+            arguments = request.args
+            valid, validation_message = validate_get_user_payload(arguments)
+
+            if not valid:
+                return {'code': 400, 'message': validation_message}
+
+            user_info = get_user_by_id(arguments.get('id'))
+
+            return {
+                'code': SUCCESS_CODE,
+                'message': GET_SUCCESS_MESSGAE,
+                'data': user_info.as_dict()
+            }
+
         except Exception as e:
             logger.error(traceback.format_exc())
             return {'code': EXCEPTION_CODE, 'message': str(e)}
@@ -114,9 +159,16 @@ class GetAllUser(Resource):
     @ns.doc(security=SECURITY)
     @ns.response(SUCCESS_CODE, GET_ALL_SUCCESS_MESSGAE, get_user_list_response())
     @jwt_required()
-    def get(self):
+    @is_authorized([USER_ROLE.ADMIN])
+    def get(self, jwt_data):
         try:
-            pass
+            users_list = get_user_list()
+
+            return {
+                'code': SUCCESS_CODE,
+                'message': GET_ALL_SUCCESS_MESSGAE,
+                'data': [user.as_dict() for user in users_list]
+            }
         except Exception as e:
             logger.error(traceback.format_exc())
             return {'code': EXCEPTION_CODE, 'message': str(e)}
@@ -129,7 +181,8 @@ class DeleteUser(Resource):
     @ns.expect(*delete_user_payload())
     @ns.response(SUCCESS_CODE, DELETE_SUCCESS_MESSGAE, delete_user_response())
     @jwt_required()
-    def delete(self):
+    @is_authorized([USER_ROLE.ADMIN])
+    def delete(self, jwt_data):
         try:
             pass
         except Exception as e:

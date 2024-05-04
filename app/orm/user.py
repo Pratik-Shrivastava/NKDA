@@ -1,24 +1,33 @@
 from app import db
-from app.orm import BaseModel
 
 
-class User(BaseModel):
+class User(db.Model):
     '''
-    ORM class for User
+    ORM class for NKDA User
     '''
-    __tablename__ = 'user'
+    __tablename__ = 'nkda_user'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
+    id = db.Column(
+        db.BigInteger,
+        primary_key=True,
+        autoincrement=True,
+        nullable=False
+    )
 
     username = db.Column(db.String(80), unique=True, nullable=False)
-    fist_name = db.Column(db.String(80), nullable=False)
+    first_name = db.Column(db.String(80), nullable=False)
     last_name = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
-    phone = db.Column(db.String(80), unique=True, nullable=False)
+    phone = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     gender = db.Column(db.String(20), nullable=False)
     active = db.Column(db.Boolean, default=True, nullable=False)
-    date_of_join = db.Column(db.Date, nullable=False)
+    date_of_join = db.Column(db.BigInteger, nullable=False)
     
-    created_at = db.Column(db.TIMESTAMP, default=db.func.now())
-    updated_at = db.Column(db.TIMESTAMP, onupdate=db.func.now())
+    created_at = db.Column(db.BigInteger, default=db.func.now())
+    updated_at = db.Column(db.BigInteger, onupdate=db.func.now())
+
+    user_roles = db.relationship('UserRole', backref=db.backref('user_role'))
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
