@@ -37,7 +37,7 @@ class Login(Resource):
             valid, validation_message = validate_login_payload(payload)
 
             if not valid:
-                return {'code': 400, 'message': validation_message}
+                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
 
             username: str = payload.get('username')
             password: str = payload.get('password')
@@ -83,7 +83,7 @@ class AddUser(Resource):
             valid, validation_message = validate_add_user_payload(payload)
 
             if not valid:
-                return {'code': 400, 'message': validation_message}
+                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
 
             user_id = add_user(payload)
 
@@ -110,12 +110,12 @@ class UpdateUser(Resource):
             valid, validation_message = validate_update_user_payload(payload)
 
             if not valid:
-                return {'code': 400, 'message': validation_message}
+                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
 
             updated = update_user(payload)
 
             if not updated:
-                return {'code': 400, 'message': UPDATE_ERROR_MESSGAE}
+                return {'code': VALIDATION_ERROR_CODE, 'message': UPDATE_ERROR_MESSGAE}
 
             return {'code': SUCCESS_CODE, 'message': UPDATE_SUCCESS_MESSGAE}
 
@@ -138,7 +138,7 @@ class GetUser(Resource):
             valid, validation_message = validate_get_user_payload(arguments)
 
             if not valid:
-                return {'code': 400, 'message': validation_message}
+                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
 
             user_info = get_user_by_id(arguments.get('id'))
 
