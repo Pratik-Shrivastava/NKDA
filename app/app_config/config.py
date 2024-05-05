@@ -33,4 +33,4 @@ def get_logger(__name__: str) -> logging.Logger:
     
     return logger
 
-print(f'{os.getcwd()}{os.sep}logs{os.sep}')
+print(f'LOGGER_PATH: {os.getcwd()}{os.sep}logs{os.sep}')

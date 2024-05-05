@@ -1,3 +1,4 @@
+from typing import List
 from app import orm as ORM
 from app import db
 
@@ -21,7 +22,6 @@ def add_user(user: dict) -> int | None:
         )
 
         db.session.add(user_model)
-        db.session.commit()
 
         for role in user.get('roles'):
             user_role = ORM.UserRole(
@@ -30,8 +30,8 @@ def add_user(user: dict) -> int | None:
             )
 
             db.session.add(user_role)
-            db.session.commit()
 
+        db.session.commit()
         return user_model.id
 
     except Exception as e:
@@ -43,7 +43,7 @@ def get_user_by_id(id: int) -> ORM.User | None:
     return ORM.User.query.filter_by(id=id).first()
 
 
-def get_user_list() -> ORM.User | None:
+def get_user_list() -> List[ORM.User] | list:
     return ORM.User.query.all()
 
 
@@ -63,7 +63,6 @@ def update_user(user: dict) -> bool:
         user_info.date_of_join = user.get('date_of_join')
 
         db.session.commit()
-
         return True
 
     except Exception as e:
