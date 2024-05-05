@@ -4,6 +4,7 @@ import traceback
 from flask import request
 from flask_jwt_extended import create_access_token, jwt_required
 from flask_restx import Resource
+from marshmallow import ValidationError
 from app.app_config.config import get_logger
 from app.app_config.response_code import *
 from app.app_config.response_message import *
