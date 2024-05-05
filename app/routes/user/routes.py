@@ -31,7 +31,7 @@ ns = api.namespace(
 class Login(Resource):
 
     @ns.expect(*login_payload())
-    @ns.response(SUCCESS_CODE, SUCCESS_MESSGAE, login_response())
+    @ns.response(SUCCESS_CODE, SUCCESS_MESSAGE, login_response())
     def post(self):
         try:
             validator = LoginValidator()
@@ -59,12 +59,12 @@ class Login(Resource):
 
             return {
                 'code': SUCCESS_CODE,
-                'message': SUCCESS_MESSGAE,
+                'message': SUCCESS_MESSAGE,
                 'jwt': access_token
             }
         
         except ValidationError as e:
-            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSGAE}
+            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE}
 
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -76,7 +76,7 @@ class AddUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*add_user_payload())
-    @ns.response(SUCCESS_CODE, INSERT_SUCCESS_MESSGAE, add_user_response())
+    @ns.response(SUCCESS_CODE, INSERT_SUCCESS_MESSAGE, add_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     def post(self, jwt_data):
@@ -86,12 +86,12 @@ class AddUser(Resource):
 
             user_id = add_user(payload)
 
-            return {'code': SUCCESS_CODE, 'message': INSERT_SUCCESS_MESSGAE}
+            return {'code': SUCCESS_CODE, 'message': INSERT_SUCCESS_MESSAGE}
         
         except ValidationError as e:
             return {
                 'code': VALIDATION_ERROR_CODE, 
-                'message': VALIDATION_ERROR_MESSGAE,
+                'message': VALIDATION_ERROR_MESSAGE,
                 'errors': e.normalized_messages()
             }
 
@@ -105,7 +105,7 @@ class UpdateUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*update_user_payload())
-    @ns.response(SUCCESS_CODE, UPDATE_SUCCESS_MESSGAE, update_user_response())
+    @ns.response(SUCCESS_CODE, UPDATE_SUCCESS_MESSAGE, update_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     def patch(self, jwt_data):
@@ -116,12 +116,12 @@ class UpdateUser(Resource):
             updated = update_user(payload)
 
             if not updated:
-                return {'code': VALIDATION_ERROR_CODE, 'message': UPDATE_ERROR_MESSGAE}
+                return {'code': VALIDATION_ERROR_CODE, 'message': UPDATE_ERROR_MESSAGE}
 
-            return {'code': SUCCESS_CODE, 'message': UPDATE_SUCCESS_MESSGAE}
+            return {'code': SUCCESS_CODE, 'message': UPDATE_SUCCESS_MESSAGE}
         
         except ValidationError as e:
-            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSGAE}
+            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE}
 
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -133,7 +133,7 @@ class GetUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*get_user_payload())
-    @ns.response(SUCCESS_CODE, GET_SUCCESS_MESSGAE, get_user_response())
+    @ns.response(SUCCESS_CODE, GET_SUCCESS_MESSAGE, get_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     def get(self, jwt_data):
@@ -145,12 +145,12 @@ class GetUser(Resource):
 
             return {
                 'code': SUCCESS_CODE,
-                'message': GET_SUCCESS_MESSGAE,
+                'message': GET_SUCCESS_MESSAGE,
                 'data': user_info.as_dict()
             }
         
         except ValidationError as e:
-            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSGAE}
+            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE}
 
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -161,7 +161,7 @@ class GetUser(Resource):
 class GetAllUser(Resource):
 
     @ns.doc(security=SECURITY)
-    @ns.response(SUCCESS_CODE, GET_ALL_SUCCESS_MESSGAE, get_user_list_response())
+    @ns.response(SUCCESS_CODE, GET_ALL_SUCCESS_MESSAGE, get_user_list_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     def get(self, jwt_data):
@@ -170,7 +170,7 @@ class GetAllUser(Resource):
 
             return {
                 'code': SUCCESS_CODE,
-                'message': GET_ALL_SUCCESS_MESSGAE,
+                'message': GET_ALL_SUCCESS_MESSAGE,
                 'data': [user.as_dict() for user in users_list]
             }
         except Exception as e:
@@ -183,7 +183,7 @@ class DeleteUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*delete_user_payload())
-    @ns.response(SUCCESS_CODE, DELETE_SUCCESS_MESSGAE, delete_user_response())
+    @ns.response(SUCCESS_CODE, DELETE_SUCCESS_MESSAGE, delete_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     def delete(self, jwt_data):

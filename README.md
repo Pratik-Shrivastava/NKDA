@@ -74,7 +74,7 @@ class AddUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*add_user_payload())
-    @ns.response(SUCCESS_CODE, INSERT_SUCCESS_MESSGAE, add_user_response())
+    @ns.response(SUCCESS_CODE, INSERT_SUCCESS_MESSAGE, add_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     def post(self, jwt_data):
@@ -84,7 +84,7 @@ class AddUser(Resource):
 * `@ns.doc(security=SECURITY)` Provide swagger-documentation, if API is authenticated.
 * `@ns.expect(*add_user_payload())`&#x20;
   * This `@ns.expect` block create documentation regarding the need of API `(payload & queryParams)`. All these payload related functions should be put in `payload.py`
-* `@ns.response(SUCCESS_CODE, INSERT_SUCCESS_MESSGAE, add_user_response())`&#x20;
+* `@ns.response(SUCCESS_CODE, INSERT_SUCCESS_MESSAGE, add_user_response())`&#x20;
   * This `@ns.response` block create documentation regarding the response of the API. All these response related functions should be put in `response.py`
   * Change the `success status` and `message` according to your application.
 * `@jwt_required()` to make API authenticated and also pass additional parameter `jwt_data` to the mapped method.
@@ -104,12 +104,12 @@ try:
     payload = validator.load(request.get_json())
 
     user_id = add_user(payload)
-    return {'code': SUCCESS_CODE, 'message': INSERT_SUCCESS_MESSGAE}
+    return {'code': SUCCESS_CODE, 'message': INSERT_SUCCESS_MESSAGE}
         
 except ValidationError as e:
     return {
         'code': VALIDATION_ERROR_CODE, 
-        'message': VALIDATION_ERROR_MESSGAE,
+        'message': VALIDATION_ERROR_MESSAGE,
         'errors': e.normalized_messages()
     }
 ```
