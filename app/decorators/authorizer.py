@@ -4,9 +4,24 @@ from functools import wraps
 from flask import request
 from flask_jwt_extended import decode_token
 
+from app.app_config.config import SENSITIVE_FIELDS
 from app.enum.user_role_enum import USER_ROLE
+from app.utils.api_response import prepare_api_response
 from app.utils.entry_log import create_entry_log
 from app.utils.get_my_ip import get_my_ip
+
+import copy
+
+def encode_payload(payload):
+    if payload:
+        for key, value in payload.items():
+            if isinstance(value, str):
+                if key in SENSITIVE_FIELDS:
+                    payload[key] = '**********'
+            elif isinstance(value, dict):
+                payload[key] = encode_payload(value)
+    return payload
+
 
 def is_authorized(required_roles_enum: list):
     def decorator(func):
@@ -27,16 +42,16 @@ def is_authorized(required_roles_enum: list):
                     required_roles_list = USER_ROLE.get_list()
                 
                 if not any(role in roles for role in required_roles_list):
-                    return {'code': 403, 'message': 'Insufficient privileges'}
+                    return prepare_api_response(403, 'Insufficient privileges')
 
                 if current_time > datetime.fromtimestamp(exp):
-                    return {'code': 401, 'message': 'Token has expired'}
+                    return prepare_api_response(401, 'Token expired')
                 
                 arguments = request.args.to_dict()
                 try:
                     payload = request.get_json()
                 except Exception as e:
-                    payload = {}
+                    payload = request.form.to_dict()
 
                 create_entry_log(
                     user_id=user_id,
@@ -44,12 +59,12 @@ def is_authorized(required_roles_enum: list):
                     ip_address=get_my_ip(request),
                     endpoint=request.path,
                     method=request.method,
-                    request_payload=payload,
-                    query_params=arguments
+                    request_payload=encode_payload(copy.deepcopy(payload)),
+                    query_params=encode_payload(copy.deepcopy(arguments))
                 )
 
                 return func(*args, **kwargs, jwt_data=jwt_data)
             except Exception as e:
-                return {'code': 401, 'message': str(e)}
+                return prepare_api_response(500, str(e))
         return wrapper
     return decorator
