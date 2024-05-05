@@ -1,3 +1,4 @@
+import time
 from app import db
 
 
@@ -21,8 +22,8 @@ class UserRole(db.Model):
     )
     name = db.Column(db.String(80), nullable=False)
 
-    created_at = db.Column(db.BigInteger, default=db.func.now())
-    updated_at = db.Column(db.BigInteger, onupdate=db.func.now())
+    created_at = db.Column(db.BigInteger, default=int(time.time() * 1000))
+    updated_at = db.Column(db.BigInteger, default=int(time.time() * 1000))
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

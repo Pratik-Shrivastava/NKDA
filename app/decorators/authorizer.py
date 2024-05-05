@@ -4,6 +4,8 @@ from functools import wraps
 from flask import request
 from flask_jwt_extended import decode_token
 
+from app.enum.user_role_enum import USER_ROLE
+from app.utils.entry_log import create_entry_log
 
 def is_authorized(required_roles_enum: list):
     def decorator(func):
@@ -19,6 +21,9 @@ def is_authorized(required_roles_enum: list):
                 current_time: datetime = datetime.now()
 
                 required_roles_list: list = [e.value for e in required_roles_enum]
+
+                if len(required_roles_list) == 0:
+                    required_roles_list = USER_ROLE.get_list()
                 
                 if not any(role in roles for role in required_roles_list):
                     return {'code': 403, 'message': 'Insufficient privileges'}
@@ -26,13 +31,20 @@ def is_authorized(required_roles_enum: list):
                 if current_time > datetime.fromtimestamp(exp):
                     return {'code': 401, 'message': 'Token has expired'}
                 
-                # TODO: auditrail
                 arguments = request.args.to_dict()
                 try:
                     payload = request.get_json()
                 except Exception as e:
                     payload = {}
 
+                create_entry_log(
+                    user_id=user_id,
+                    username=username,
+                    endpoint=request.path,
+                    method=request.method,
+                    request_payload=payload,
+                    query_params=arguments
+                )
 
                 return func(*args, **kwargs, jwt_data=jwt_data)
             except Exception as e:

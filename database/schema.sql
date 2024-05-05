@@ -24,3 +24,17 @@ CREATE TABLE
         updated_at BIGINT,
         FOREIGN KEY (user_id) REFERENCES nkda_user (id) ON DELETE CASCADE
     );
+
+CREATE TABLE
+    IF NOT EXISTS entry_log (
+        id BIGSERIAL PRIMARY KEY NOT NULL,
+        user_id BIGINT NOT NULL,
+        username VARCHAR(80) NOT NULL,
+        endpoint VARCHAR(255) NOT NULL,
+        method VARCHAR(10) NOT NULL,
+        request_payload JSONB DEFAULT NULL,
+        query_params JSONB DEFAULT NULL,
+        created_at BIGINT NOT NULL DEFAULT extract(epoch from now()) * 1000,
+        FOREIGN KEY (user_id) REFERENCES nkda_user (id) ON DELETE CASCADE,
+        FOREIGN KEY (username) REFERENCES nkda_user (username)
+    );
