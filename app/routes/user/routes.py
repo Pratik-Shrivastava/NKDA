@@ -18,6 +18,7 @@ from app.routes.user.payload import *
 from app.routes.user.response import *
 from app.routes.user.dao_service import *
 from app.routes.user.validator import *
+from app.utils.api_response import prepare_api_response
 
 
 logger = get_logger(__name__)
@@ -37,17 +38,18 @@ class Login(Resource):
     def post(self):
         try:
             validator = LoginValidator()
-            payload = validator.load(request.get_json())
+            payload: dict = validator.load(request.get_json())
 
             username: str = payload['username']
             password: str = payload['password']
 
-            user_info = get_user_by_username_and_password(username, password)
+            user_info: ORM.User | None =\
+                get_user_by_username_and_password(username, password)
 
             if (not user_info):
-                return {'code': 401, 'message': 'Invalid username or password'}
+                return prepare_api_response(401, 'Invalid username or password')
 
-            access_token = create_access_token(
+            access_token: str = create_access_token(
                 identity=username,
                 expires_delta=datetime.timedelta(hours=24),
                 additional_claims={
@@ -57,18 +59,22 @@ class Login(Resource):
                 }
             )
 
-            return {
-                'code': SUCCESS_CODE,
-                'message': SUCCESS_MESSAGE,
-                'jwt': access_token
-            }
-        
+            return prepare_api_response(
+                SUCCESS_CODE,
+                SUCCESS_MESSAGE,
+                data={'jwt': access_token}
+            )
+
         except ValidationError as e:
-            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE, 'errors': e.normalized_messages()}
+            return prepare_api_response(
+                VALIDATION_ERROR_CODE,
+                VALIDATION_ERROR_MESSAGE,
+                error=e.normalized_messages()
+            )
 
         except Exception as e:
             logger.error(traceback.format_exc())
-            return {'code': EXCEPTION_CODE, 'message': str(e)}
+            return prepare_api_response(EXCEPTION_CODE, str(e))
 
 
 @ns.route('/add', methods=['POST'])
@@ -83,22 +89,22 @@ class AddUser(Resource):
     def post(self, jwt_data):
         try:
             validator = AddUserValidator()
-            payload = validator.load(request.get_json())
+            payload: dict = validator.load(request.get_json())
 
-            user_id = add_user(payload)
+            user_id: int = add_user(payload)
 
-            return {'code': SUCCESS_CODE, 'message': INSERT_SUCCESS_MESSAGE}
-        
+            return prepare_api_response(SUCCESS_CODE, INSERT_SUCCESS_MESSAGE)
+
         except ValidationError as e:
-            return {
-                'code': VALIDATION_ERROR_CODE, 
-                'message': VALIDATION_ERROR_MESSAGE,
-                'errors': e.normalized_messages()
-            }
+            return prepare_api_response(
+                VALIDATION_ERROR_CODE,
+                VALIDATION_ERROR_MESSAGE,
+                error=e.normalized_messages()
+            )
 
         except Exception as e:
             logger.error(traceback.format_exc())
-            return {'code': EXCEPTION_CODE, 'message': str(e)}
+            return prepare_api_response(EXCEPTION_CODE, str(e))
 
 
 @ns.route('/update', methods=['PATCH'])
@@ -113,21 +119,26 @@ class UpdateUser(Resource):
     def patch(self, jwt_data):
         try:
             validator = UpdateUserValidator()
-            payload = validator.load(request.get_json())
+            payload: dict = validator.load(request.get_json())
 
-            updated = update_user(payload)
+            updated: bool = update_user(payload)
 
             if not updated:
-                return {'code': VALIDATION_ERROR_CODE, 'message': UPDATE_ERROR_MESSAGE}
+                return prepare_api_response(
+                    VALIDATION_ERROR_CODE, UPDATE_ERROR_MESSAGE)
 
-            return {'code': SUCCESS_CODE, 'message': UPDATE_SUCCESS_MESSAGE}
-        
+            return prepare_api_response(SUCCESS_CODE, UPDATE_SUCCESS_MESSAGE)
+
         except ValidationError as e:
-            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE}
+            return prepare_api_response(
+                VALIDATION_ERROR_CODE,
+                VALIDATION_ERROR_MESSAGE,
+                error=e.normalized_messages()
+            )
 
         except Exception as e:
             logger.error(traceback.format_exc())
-            return {'code': EXCEPTION_CODE, 'message': str(e)}
+            return prepare_api_response(EXCEPTION_CODE, str(e))
 
 
 @ns.route('/get', methods=['GET'])
@@ -142,22 +153,26 @@ class GetUser(Resource):
     def get(self, jwt_data):
         try:
             validator = GetUserValidator()
-            arguments = validator.load(request.args.to_dict())
+            arguments: dict = validator.load(request.args.to_dict())
 
-            user_info = get_user_by_id(arguments['id'])
+            user_info: ORM.User | None = get_user_by_id(arguments['id'])
 
-            return {
-                'code': SUCCESS_CODE,
-                'message': GET_SUCCESS_MESSAGE,
-                'data': user_info.as_dict()
-            }
-        
+            return prepare_api_response(
+                SUCCESS_CODE,
+                GET_SUCCESS_MESSAGE,
+                data=user_info.as_dict()
+            )
+
         except ValidationError as e:
-            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE}
+            return prepare_api_response(
+                VALIDATION_ERROR_CODE,
+                VALIDATION_ERROR_MESSAGE,
+                error=e.normalized_messages()
+            )
 
         except Exception as e:
             logger.error(traceback.format_exc())
-            return {'code': EXCEPTION_CODE, 'message': str(e)}
+            return prepare_api_response(EXCEPTION_CODE, str(e))
 
 
 @ns.route('/get-all', methods=['GET'])
@@ -172,14 +187,15 @@ class GetAllUser(Resource):
         try:
             users_list = get_user_list()
 
-            return {
-                'code': SUCCESS_CODE,
-                'message': GET_ALL_SUCCESS_MESSAGE,
-                'data': [user.as_dict() for user in users_list]
-            }
+            return prepare_api_response(
+                SUCCESS_CODE,
+                GET_ALL_SUCCESS_MESSAGE,
+                data=[user.as_dict() for user in users_list]
+            )
+        
         except Exception as e:
             logger.error(traceback.format_exc())
-            return {'code': EXCEPTION_CODE, 'message': str(e)}
+            return prepare_api_response(EXCEPTION_CODE, str(e))
 
 
 @ns.route('/delete', methods=['DELETE'])
@@ -196,4 +212,4 @@ class DeleteUser(Resource):
             pass
         except Exception as e:
             logger.error(traceback.format_exc())
-            return {'code': EXCEPTION_CODE, 'message': str(e)}
+            return prepare_api_response(EXCEPTION_CODE, str(e))
