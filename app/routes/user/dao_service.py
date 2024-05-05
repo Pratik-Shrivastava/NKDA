@@ -22,6 +22,7 @@ def add_user(user: dict) -> int | None:
         )
 
         db.session.add(user_model)
+        db.session.flush([user_model])
 
         for role in user.get('roles'):
             user_role = ORM.UserRole(
