@@ -3,6 +3,8 @@ from app.app_config.response_message import *
 from app.routes import api
 from flask_restx import fields
 
+from app.utils.api_response import prepare_swagger_response
+
 USER_RESPONSE_MODEL: any = api.model('user', {
     'id': fields.Integer,
     'username': fields.String,
@@ -17,47 +19,58 @@ USER_RESPONSE_MODEL: any = api.model('user', {
     'roles': fields.List(fields.String)
 })
 
+JWT_RESPONSE_MODEL: any = api.model('jwt Data', {
+    'jwt': fields.String
+})
+
 
 def login_response() -> any:
-    return api.model('login Response', {
-        'code': fields.Integer(default=SUCCESS_CODE),
-        'message': fields.String(default=SUCCESS_MESSAGE),
-        'jwt': fields.String
-    })
+    return prepare_swagger_response(
+        code=SUCCESS_CODE,
+        message=SUCCESS_MESSAGE,
+        model_name='login Response',
+        data=fields.Nested(JWT_RESPONSE_MODEL)
+    )
 
 
 def add_user_response() -> any:
-    return api.model('addUser Response', {
-        'code': fields.Integer(default=SUCCESS_CODE),
-        'message': fields.String(default=INSERT_SUCCESS_MESSAGE)
-    })
+
+    return prepare_swagger_response(
+        code=SUCCESS_CODE,
+        message=INSERT_SUCCESS_MESSAGE,
+        model_name='addUser Response'
+    )
 
 
 def update_user_response() -> any:
-    return api.model('updateUser Response', {
-        'code': fields.Integer(default=SUCCESS_CODE),
-        'message': fields.String(default=UPDATE_SUCCESS_MESSAGE)
-    })
+    return prepare_swagger_response(
+        code=SUCCESS_CODE,
+        message=UPDATE_SUCCESS_MESSAGE,
+        model_name='updateUser Response'
+    )
 
 
 def get_user_response() -> any:
-    return api.model('getUser Response', {
-        'code': fields.Integer(default=SUCCESS_CODE),
-        'message': fields.String(default=GET_SUCCESS_MESSAGE),
-        'data': fields.Nested(USER_RESPONSE_MODEL)
-    })
+    return prepare_swagger_response(
+        code=SUCCESS_CODE,
+        message=GET_SUCCESS_MESSAGE,
+        model_name='getUser Response',
+        data=fields.Nested(USER_RESPONSE_MODEL)
+    )
 
 
 def get_user_list_response() -> any:
-    return api.model('getUserList Response', {
-        'code': fields.Integer(default=SUCCESS_CODE),
-        'message': fields.String(default=GET_ALL_SUCCESS_MESSAGE),
-        'data': fields.List(fields.Nested(USER_RESPONSE_MODEL))
-    })
+    return prepare_swagger_response(
+        code=SUCCESS_CODE,
+        message=GET_ALL_SUCCESS_MESSAGE,
+        model_name='getUserList Response',
+        data=fields.List(fields.Nested(USER_RESPONSE_MODEL))
+    )
 
 
 def delete_user_response() -> any:
-    return api.model('deleteUser Response', {
-        'code': fields.Integer(default=SUCCESS_CODE),
-        'message': fields.String(default=DELETE_SUCCESS_MESSAGE),
-    })
+    return prepare_swagger_response(
+        code=SUCCESS_CODE,
+        message=DELETE_SUCCESS_MESSAGE,
+        model_name='deleteUser Response'
+    )

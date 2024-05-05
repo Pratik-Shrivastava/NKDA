@@ -10,6 +10,7 @@ from app.app_config.response_code import *
 from app.app_config.response_message import *
 from app.app_config.swagger_config import SECURITY
 from app.decorators.authorizer import is_authorized
+from app.decorators.sanitizer import sanitized
 from app.enum.user_role_enum import USER_ROLE
 from app.routes import api
 
@@ -31,7 +32,8 @@ ns = api.namespace(
 class Login(Resource):
 
     @ns.expect(*login_payload())
-    @ns.response(SUCCESS_CODE, SUCCESS_MESSAGE, login_response())
+    @ns.response(*login_response())
+    @sanitized()
     def post(self):
         try:
             validator = LoginValidator()
@@ -44,8 +46,6 @@ class Login(Resource):
 
             if (not user_info):
                 return {'code': 401, 'message': 'Invalid username or password'}
-
-            # TODO: Add OTP verification
 
             access_token = create_access_token(
                 identity=username,
@@ -64,7 +64,7 @@ class Login(Resource):
             }
         
         except ValidationError as e:
-            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE}
+            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSAGE, 'errors': e.normalized_messages()}
 
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -76,9 +76,10 @@ class AddUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*add_user_payload())
-    @ns.response(SUCCESS_CODE, INSERT_SUCCESS_MESSAGE, add_user_response())
+    @ns.response(*add_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
+    @sanitized()
     def post(self, jwt_data):
         try:
             validator = AddUserValidator()
@@ -105,9 +106,10 @@ class UpdateUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*update_user_payload())
-    @ns.response(SUCCESS_CODE, UPDATE_SUCCESS_MESSAGE, update_user_response())
+    @ns.response(*update_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
+    @sanitized()
     def patch(self, jwt_data):
         try:
             validator = UpdateUserValidator()
@@ -133,9 +135,10 @@ class GetUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*get_user_payload())
-    @ns.response(SUCCESS_CODE, GET_SUCCESS_MESSAGE, get_user_response())
+    @ns.response(*get_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
+    @sanitized()
     def get(self, jwt_data):
         try:
             validator = GetUserValidator()
@@ -161,9 +164,10 @@ class GetUser(Resource):
 class GetAllUser(Resource):
 
     @ns.doc(security=SECURITY)
-    @ns.response(SUCCESS_CODE, GET_ALL_SUCCESS_MESSAGE, get_user_list_response())
+    @ns.response(*get_user_list_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
+    @sanitized()
     def get(self, jwt_data):
         try:
             users_list = get_user_list()
@@ -183,9 +187,10 @@ class DeleteUser(Resource):
 
     @ns.doc(security=SECURITY)
     @ns.expect(*delete_user_payload())
-    @ns.response(SUCCESS_CODE, DELETE_SUCCESS_MESSAGE, delete_user_response())
+    @ns.response(*delete_user_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
+    @sanitized()
     def delete(self, jwt_data):
         try:
             pass
