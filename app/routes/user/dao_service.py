@@ -9,6 +9,12 @@ def get_user_by_username_and_password(username: str, password: str) -> ORM.User 
 
 def add_user(user: dict) -> int | None:
     try:
+        existing_user: ORM.User | None = ORM.User.query.\
+            filter_by(username=user.get('username')).first()
+        
+        if existing_user:
+            raise Exception('username already exists')
+
         user_model = ORM.User(
             username=user.get('username'),
             first_name=user.get('first_name'),
@@ -25,12 +31,12 @@ def add_user(user: dict) -> int | None:
         db.session.flush([user_model])
 
         for role in user.get('roles'):
-            user_role = ORM.UserRole(
-                user_id=user_model.id,
-                name=role
+            db.session.add(
+                ORM.UserRole(
+                    user_id=user_model.id,
+                    name=role
+                )
             )
-
-            db.session.add(user_role)
 
         db.session.commit()
         return user_model.id

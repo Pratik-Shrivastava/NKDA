@@ -19,6 +19,7 @@ from app.routes.user.response import *
 from app.routes.user.dao_service import *
 from app.routes.user.validator import *
 from app.utils.api_response import prepare_api_response
+from app.utils.get_my_ip import get_my_ip
 
 
 logger = get_logger(__name__)
@@ -54,8 +55,9 @@ class Login(Resource):
                 expires_delta=datetime.timedelta(hours=24),
                 additional_claims={
                     'roles': [roles.as_dict()['name'] for roles in user_info.user_roles],
-                    'username': username,
-                    'user_id': user_info.id
+                    'user_name': f'{user_info.first_name} {user_info.last_name}',
+                    'user_id': user_info.id,
+                    'ip_address': get_my_ip(request)
                 }
             )
 

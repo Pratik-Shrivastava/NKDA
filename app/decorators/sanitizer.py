@@ -13,7 +13,8 @@ def sanitized():
                 payload = request.get_json()
                 request.json = sanitize(payload)
             except Exception as e:
-                pass
+                payload = request.form.to_dict()
+                request.form = sanitize(payload)
 
             return func(*args, **kwargs)
         return wrapper

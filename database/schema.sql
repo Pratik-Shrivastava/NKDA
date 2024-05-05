@@ -10,8 +10,8 @@ CREATE TABLE
         gender VARCHAR(20) NOT NULL,
         active BOOLEAN DEFAULT true,
         date_of_join BIGINT NOT NULL,
-        created_at BIGINT NOT NULL DEFAULT extract(epoch from now()) * 1000,
-        updated_at BIGINT
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP
     );
 
 
@@ -20,8 +20,8 @@ CREATE TABLE
         id BIGSERIAL PRIMARY KEY NOT NULL,
         user_id BIGINT NOT NULL,
         name VARCHAR(80) NOT NULL,
-        created_at BIGINT NOT NULL DEFAULT extract(epoch from now()) * 1000,
-        updated_at BIGINT,
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES nkda_user (id) ON DELETE CASCADE
     );
 
@@ -29,12 +29,12 @@ CREATE TABLE
     IF NOT EXISTS entry_log (
         id BIGSERIAL PRIMARY KEY NOT NULL,
         user_id BIGINT NOT NULL,
-        username VARCHAR(80) NOT NULL,
+        user_name VARCHAR(160) NOT NULL,
+        ip_address VARCHAR(40) NOT NULL,
         endpoint VARCHAR(255) NOT NULL,
         method VARCHAR(10) NOT NULL,
         request_payload JSONB DEFAULT NULL,
         query_params JSONB DEFAULT NULL,
-        created_at BIGINT NOT NULL DEFAULT extract(epoch from now()) * 1000,
-        FOREIGN KEY (user_id) REFERENCES nkda_user (id) ON DELETE CASCADE,
-        FOREIGN KEY (username) REFERENCES nkda_user (username)
+        created_at TIMESTAMP NOT NULL DEFAULT now(),
+        FOREIGN KEY (user_id) REFERENCES nkda_user (id) ON DELETE CASCADE
     );

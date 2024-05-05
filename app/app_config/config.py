@@ -16,21 +16,32 @@ DB_URI: str = 'postgresql://%(user)s:%(password)s@%(host)s:%(port)s/%(db)s' % PO
 POSTGRES_DATE_FORMAT: str = '%Y-%m-%d'
 POSTGRES_DT_FORMAT: str = '%Y-%m-%dT%H:%M:%S'
 
-JWT_SECRET_KEY: str = os.environ.get('JWT_SECRET_KEY', 'f3bca1544d308741c9240f3b6ced1067513ce1351c9fd3971fdafbfe68fffc82')
+JWT_SECRET_KEY: str = os.environ.get(
+    'JWT_SECRET_KEY', 'f3bca1544d308741c9240f3b6ced1067513ce1351c9fd3971fdafbfe68fffc82'
+)
 
-LOGGER_PATH: str = os.environ.get('LOGGER_PATH', f'{os.getcwd()}{os.sep}logs{os.sep}')
+LOGGER_PATH: str = os.environ.get(
+    'LOGGER_PATH', f'{os.getcwd()}{os.sep}logs{os.sep}')
+
+# Sensetive fields to hide in audit log
+SENSITIVE_FIELDS: list = os.environ.get(
+    'SENSITIVE_FIELDS',
+    ['password', 'confirm_password']
+)
 
 
 def get_logger(__name__: str) -> logging.Logger:
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
-    
-    formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s')
+
+    formatter = logging.Formatter(
+        '%(asctime)s:%(levelname)s:%(name)s:%(message)s')
     file_handler = logging.FileHandler(f'{LOGGER_PATH}log-{date.today()}.log')
-    
+
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-    
+
     return logger
+
 
 print(f'LOGGER_PATH: {os.getcwd()}{os.sep}logs{os.sep}')
