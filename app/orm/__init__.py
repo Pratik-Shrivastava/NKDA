@@ -1,2 +1,2 @@
-from app.orm.user import *
-from app.orm.use_role import *
+from app.orm.user_orm import *
+from app.orm.use_role_orm import *

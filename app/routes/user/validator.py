@@ -1,67 +1,77 @@
 from app.enum.user_role_enum import USER_ROLE
-from werkzeug.datastructures import ImmutableMultiDict
+from marshmallow import Schema, fields, validate, ValidationError, validates, validates_schema
+
+import re
 
 
-def validate_login_payload(payload: dict) -> tuple[bool, str]:
-
-    if (not payload.get('username')):
-        return False, 'Username is required'
-
-    if (not payload.get('password')):
-        return False, 'Password is required'
-
-    return True, ''
+class LoginValidator(Schema):
+    username = fields.String(required=True)
+    password = fields.String(required=True)
 
 
-def validate_add_user_payload(payload: dict) -> tuple[bool, str]:
+class AddUserValidator(Schema):
+    username = fields.String(required=True)
+    first_name = fields.String(required=True)
+    last_name = fields.String(required=True)
+    password = fields.String(required=True)
+    phone = fields.String(required=True)
+    email = fields.String(required=True)
+    gender = fields.String(required=True)
+    active = fields.Boolean(required=True)
+    date_of_join = fields.Integer(required=True)
+    roles = fields.List(
+        fields.String(
+            required=True,
+            validate=validate.OneOf(USER_ROLE.get_list())
+        )
+    )
 
-    if (not payload.get('username')):
-        return False, 'Username is required'
+    @validates_schema
+    def validate(self, data, **kwargs):
+        errors = {}
 
-    if (not payload.get('first_name')):
-        return False, 'First name is required'
+        mobile_pattern = r"^[0-9]{10}$"
+        if not re.match(mobile_pattern, data['phone']):
+            errors['phone'] = 'Invalid phone number'
 
-    if (not payload.get('last_name')):
-        return False, 'Last name is required'
+        email_pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+        if not re.match(email_pattern, data['email']):
+            errors['email'] = 'Invalid email address'
 
-    if (not payload.get('password')):
-        return False, 'Password is required'
+        if len(data['password'].strip()) > 32 or len(data['password'].strip()) < 6:
+            errors['password'] = 'Password should be between 6 and 32 characters'
 
-    if (not payload.get('phone')):
-        return False, 'Phone is required'
+        if len(data['roles']) < 1:
+            errors['roles'] = 'roles cannot be empty'
 
-    if (not payload.get('email')):
-        return False, 'Email is required'
-
-    if (not payload.get('gender')):
-        return False, 'Gender is required'
-
-    if (not payload.get('active')):
-        return False, 'Active is required'
-
-    if (not payload.get('date_of_join')):
-        return False, 'Date of join is required'
-
-    if (not payload.get('roles')):
-        return False, 'Roles are required'
-
-    if not any(role in payload.get('roles') for role in USER_ROLE.get_list()):
-        return False, 'Invalid roles'
-
-    return True, ''
-
-
-def validate_update_user_payload(payload: dict) -> tuple[bool, str]:
-
-    if (not payload.get('id')):
-        return False, 'id is required'
-
-    return validate_add_user_payload(payload)
+        if errors:
+            raise ValidationError(errors)
 
 
-def validate_get_user_payload(args: dict) -> tuple[bool, str]:
+class UpdateUserValidator(Schema):
+    id = fields.Integer(required=True)
+    first_name = fields.String()
+    last_name = fields.String()
+    password = fields.String()
+    phone = fields.String()
+    gender = fields.String()
+    active = fields.Boolean()
+    date_of_join = fields.Integer()
 
-    if (not args.get('id')):
-        return False, 'id is required'
+    @validates_schema
+    def validate(self, data, **kwargs):
+        errors = {}
 
-    return True, ''
+        mobile_pattern = r"^[0-9]{10}$"
+        if not re.match(mobile_pattern, data['phone']):
+            errors['phone'] = 'Invalid phone number'
+
+        if len(data['password'].strip()) > 32 or len(data['password'].strip()) < 6:
+            errors['password'] = 'Password should be between 6 and 32 characters'
+
+        if errors:
+            raise ValidationError(errors)
+
+
+class GetUserValidator(Schema):
+    id = fields.Integer(required=True)

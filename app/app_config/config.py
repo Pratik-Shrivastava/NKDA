@@ -18,7 +18,7 @@ POSTGRES_DT_FORMAT: str = '%Y-%m-%dT%H:%M:%S'
 
 JWT_SECRET_KEY: str = os.environ.get('JWT_SECRET_KEY', 'f3bca1544d308741c9240f3b6ced1067513ce1351c9fd3971fdafbfe68fffc82')
 
-LOGGER_PATH: str = os.environ.get('LOGGER_PATH', 'D:/WEBSOFTTECHS/nkda-backend/logs/')
+LOGGER_PATH: str = os.environ.get('LOGGER_PATH', f'{os.getcwd()}{os.sep}logs{os.sep}')
 
 
 def get_logger(__name__: str) -> logging.Logger:
@@ -32,3 +32,5 @@ def get_logger(__name__: str) -> logging.Logger:
     logger.addHandler(file_handler)
     
     return logger
+
+print(f'{os.getcwd()}{os.sep}logs{os.sep}')

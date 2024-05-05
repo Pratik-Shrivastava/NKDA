@@ -14,7 +14,7 @@ from app.routes import api
 
 from app.routes.user.payload import *
 from app.routes.user.response import *
-from app.routes.user.service import *
+from app.routes.user.dao_service import *
 from app.routes.user.validator import *
 
 
@@ -33,14 +33,11 @@ class Login(Resource):
     @ns.response(SUCCESS_CODE, SUCCESS_MESSGAE, login_response())
     def post(self):
         try:
-            payload = request.get_json()
-            valid, validation_message = validate_login_payload(payload)
+            validator = LoginValidator()
+            payload = validator.load(request.get_json())
 
-            if not valid:
-                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
-
-            username: str = payload.get('username')
-            password: str = payload.get('password')
+            username: str = payload['username']
+            password: str = payload['password']
 
             user_info = get_user_by_username_and_password(username, password)
 
@@ -64,6 +61,9 @@ class Login(Resource):
                 'message': SUCCESS_MESSGAE,
                 'jwt': access_token
             }
+        
+        except ValidationError as e:
+            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSGAE}
 
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -80,17 +80,19 @@ class AddUser(Resource):
     @is_authorized([USER_ROLE.ADMIN])
     def post(self, jwt_data):
         try:
-            payload = request.get_json()
-            valid, validation_message = validate_add_user_payload(payload)
-
-            if not valid:
-                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
+            validator = AddUserValidator()
+            payload = validator.load(request.get_json())
 
             user_id = add_user(payload)
 
-            # TODO: send email
-
             return {'code': SUCCESS_CODE, 'message': INSERT_SUCCESS_MESSGAE}
+        
+        except ValidationError as e:
+            return {
+                'code': VALIDATION_ERROR_CODE, 
+                'message': VALIDATION_ERROR_MESSGAE,
+                'errors': e.normalized_messages()
+            }
 
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -107,11 +109,8 @@ class UpdateUser(Resource):
     @is_authorized([USER_ROLE.ADMIN])
     def patch(self, jwt_data):
         try:
-            payload = request.get_json()
-            valid, validation_message = validate_update_user_payload(payload)
-
-            if not valid:
-                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
+            validator = UpdateUserValidator()
+            payload = validator.load(request.get_json())
 
             updated = update_user(payload)
 
@@ -119,6 +118,9 @@ class UpdateUser(Resource):
                 return {'code': VALIDATION_ERROR_CODE, 'message': UPDATE_ERROR_MESSGAE}
 
             return {'code': SUCCESS_CODE, 'message': UPDATE_SUCCESS_MESSGAE}
+        
+        except ValidationError as e:
+            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSGAE}
 
         except Exception as e:
             logger.error(traceback.format_exc())
@@ -135,19 +137,19 @@ class GetUser(Resource):
     @is_authorized([USER_ROLE.ADMIN])
     def get(self, jwt_data):
         try:
-            arguments = request.args.to_dict()
-            valid, validation_message = validate_get_user_payload(arguments)
+            validator = GetUserValidator()
+            arguments = validator.load(request.args.to_dict())
 
-            if not valid:
-                return {'code': VALIDATION_ERROR_CODE, 'message': validation_message}
-
-            user_info = get_user_by_id(arguments.get('id'))
+            user_info = get_user_by_id(arguments['id'])
 
             return {
                 'code': SUCCESS_CODE,
                 'message': GET_SUCCESS_MESSGAE,
                 'data': user_info.as_dict()
             }
+        
+        except ValidationError as e:
+            return {'code': VALIDATION_ERROR_CODE, 'message': VALIDATION_ERROR_MESSGAE}
 
         except Exception as e:
             logger.error(traceback.format_exc())
