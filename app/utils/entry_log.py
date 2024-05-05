@@ -4,7 +4,8 @@ from app.orm import *
 
 def create_entry_log(
     user_id: int,
-    username: str,
+    user_name: str,
+    ip_address: str,
     endpoint: str,
     method: str,
     request_payload: dict,
@@ -14,7 +15,8 @@ def create_entry_log(
     try:
         entry_log = EntryLog(
             user_id=user_id,
-            username=username,
+            user_name=user_name,
+            ip_address=ip_address,
             endpoint=endpoint,
             method=method,
             request_payload=request_payload,

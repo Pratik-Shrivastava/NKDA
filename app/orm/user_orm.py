@@ -1,4 +1,4 @@
-import time
+from datetime import datetime
 from app import db
 
 
@@ -25,8 +25,8 @@ class User(db.Model):
     active = db.Column(db.Boolean, default=True, nullable=False)
     date_of_join = db.Column(db.BigInteger, nullable=False)
     
-    created_at = db.Column(db.BigInteger, default=int(time.time() * 1000))
-    updated_at = db.Column(db.BigInteger, default=int(time.time() * 1000))
+    created_at = db.Column(db.DATETIME, default=datetime.now)
+    updated_at = db.Column(db.DATETIME, onupdate=datetime.now)
 
     user_roles = db.relationship('UserRole', backref=db.backref('user_role'))
 

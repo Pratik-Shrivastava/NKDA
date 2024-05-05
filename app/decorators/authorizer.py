@@ -6,6 +6,7 @@ from flask_jwt_extended import decode_token
 
 from app.enum.user_role_enum import USER_ROLE
 from app.utils.entry_log import create_entry_log
+from app.utils.get_my_ip import get_my_ip
 
 def is_authorized(required_roles_enum: list):
     def decorator(func):
@@ -14,7 +15,7 @@ def is_authorized(required_roles_enum: list):
             try:
                 token = request.headers.get('Authorization').split('Bearer ')[1]
                 jwt_data = decode_token(token)
-                username = jwt_data.get('username')
+                user_name = jwt_data.get('user_name')
                 user_id = jwt_data.get('user_id')
                 roles: list = jwt_data.get('roles', [])
                 exp: int = jwt_data['exp']
@@ -39,7 +40,8 @@ def is_authorized(required_roles_enum: list):
 
                 create_entry_log(
                     user_id=user_id,
-                    username=username,
+                    user_name=user_name,
+                    ip_address=get_my_ip(request),
                     endpoint=request.path,
                     method=request.method,
                     request_payload=payload,
