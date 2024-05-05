@@ -43,20 +43,16 @@ This is a starter template for your flask application. Instead of starting your 
       -- user_role_enum.py ## USER_ROLES enum for authorization
   -- orm/
   -- routes/
-```
-
-* The `orm` directory holds all the data-models `(sqlAlchemy)` for the project.
-* The `routes` directory holds all the routes for the application. Each sub-folder represent different route group for application.
-
-```txt
-- routes/
-  -- user/
+    -- user/
       -- dao_service.py ## operation related to data-models
       -- payload.py ## payload model for swagger documentation
       -- response.py ## response model for swagger documentation
       -- routes.py
       -- validator.py
 ```
+
+* The `orm` directory holds all the data-models `(sqlAlchemy)` for the project.
+* The `routes` directory holds all the routes for the application. Each sub-folder represent different route module for application.
 
 * Now you can continue creating routes by implementing  `routes.py`
 
