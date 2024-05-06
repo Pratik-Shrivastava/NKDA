@@ -48,6 +48,6 @@ CREATE TABLE
         created_at BIGINT NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()) * 1000,
         created_by VARCHAR(80) NOT NULL,
         updated_at BIGINT
-        created_by VARCHAR(80) NOT NULL
+        updated_by VARCHAR(80) NOT NULL
 );
 -- Product schema ends here.

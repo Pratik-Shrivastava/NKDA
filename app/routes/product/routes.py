@@ -161,7 +161,15 @@ class DeleteProduct(Resource):
     @sanitized()
     def delete(self, jwt_data):
         try:
-            pass
+            product_id: int = request.args.get('product_id')
+
+            deleted = delete_product(product_id)
+
+            if not deleted:
+                return prepare_api_response(EXCEPTION_CODE, DELETE_ERROR_MESSAGE)
+            
+            return prepare_api_response(SUCCESS_CODE, DELETE_SUCCESS_MESSAGE)
+        
         except Exception as e:
             logger.error(traceback.format_exc())
             return prepare_api_response(EXCEPTION_CODE, str(e))

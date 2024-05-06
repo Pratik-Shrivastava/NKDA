@@ -17,6 +17,7 @@ def add_product_payload() -> list:
 def update_product_payload() -> list:
 
     payload = api.model('updateProduct Payload' , {
+        'product_id':fields.Integer,
         'product_name': fields.String,
         'product_description': fields.String,
         'product_price': fields.Float,

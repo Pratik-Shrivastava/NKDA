@@ -3,65 +3,62 @@ from app import orm as ORM
 from app import db
 
 
-def add_product(product: dict) -> int | None:
+def add_product(product : dict) -> int | None:
     try:
-        user_model = ORM.User(
-            username=user.get('username'),
-            first_name=user.get('first_name'),
-            last_name=user.get('last_name'),
-            password=user.get('password'), #TODO: hash password
-            phone=user.get('phone'),
-            email=user.get('email'),    #TODO: encrypt email
-            gender=user.get('gender'),
-            active=user.get('active'),
-            date_of_join=user.get('date_of_join')
+        product_model = ORM.Product(
+            product_name = Product.get('product_name'),
+            product_description = Product.get('product_description'),
+            product_price = Product.get('product_price')
         )
 
-        db.session.add(user_model)
-        db.session.flush([user_model])
-
-        for role in user.get('roles'):
-            user_role = ORM.UserRole(
-                user_id=user_model.id,
-                name=role
-            )
-
-            db.session.add(user_role)
-
+        db.session.add(product_model)
+        db.session.flush([product_model])
+    
         db.session.commit()
-        return user_model.id
-
+        return product_model.id
+    
     except Exception as e:
         db.session.rollback()
         raise e
-    
-
-def get_user_by_id(id: int) -> ORM.User | None:
-    return ORM.User.query.filter_by(id=id).first()
 
 
-def get_user_list() -> List[ORM.User] | list:
-    return ORM.User.query.all()
+def get_product_by_id(id: int) -> ORM.Product | None:
+    return ORM.Product.query.filter_by(id=id).first()
 
+def get_product_list() -> List[ORM.Product] | list:
+    return ORM.Product.query.all()
 
-def update_user(user: dict) -> bool:
+def update_product(product: dict) -> bool:
     try:
-        user_info = get_user_by_id(user.get('id'))
+        product_info = get_product_by_id(product.get('id'))
 
-        if user_info is None:
+        if product_info is None:
             return False
 
-        user_info.first_name = user.get('first_name')
-        user_info.last_name = user.get('last_name')
-        user_info.password = user.get('password') #TODO: hash password
-        user_info.phone = user.get('phone')
-        user_info.gender = user.get('gender')
-        user_info.active = user.get('active')
-        user_info.date_of_join = user.get('date_of_join')
-
+        product_info.product_name = product.get('product_name')
+        product_info.product_description = product.get('product_description')
+        product_info.product_price = product.get('product_price') 
+       
         db.session.commit()
         return True
 
     except Exception as e:
         db.session.rollback()
         raise e
+
+def delete_product(product_id: int) -> bool:
+    try:
+        product_info = get_product_by_id(product_id)
+        
+        if product_info is None:
+            return False
+
+        db.session.delete(product_info)
+        db.session.commit()
+        return True
+    
+    except Exception as e:
+        db.session.rollback()
+        raise e
+ 
+         
