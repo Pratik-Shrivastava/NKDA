@@ -3,11 +3,7 @@ from app import orm as ORM
 from app import db
 
 
-def get_user_by_username_and_password(username: str, password: str) -> ORM.User | None:
-    return ORM.User.query.filter_by(username=username, password=password).first()
-
-
-def add_user(user: dict) -> int | None:
+def add_product(product: dict) -> int | None:
     try:
         user_model = ORM.User(
             username=user.get('username'),

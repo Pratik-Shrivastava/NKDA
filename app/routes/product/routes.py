@@ -24,74 +24,26 @@ from app.utils.api_response import prepare_api_response
 logger = get_logger(__name__)
 ns = api.namespace(
     name=os.path.dirname(__file__).split(os.sep)[-1].replace('_', '-'),
-    description='API connected to user module',
+    description='API connected to product module',
     ordered=False
 )
 
 
-@ns.route('/login', methods=['POST'])
-class Login(Resource):
-
-    @ns.expect(*login_payload())
-    @ns.response(*login_response())
-    @sanitized()
-    def post(self):
-        try:
-            validator = LoginValidator()
-            payload: dict = validator.load(request.get_json())
-
-            username: str = payload['username']
-            password: str = payload['password']
-
-            user_info: ORM.User | None =\
-                get_user_by_username_and_password(username, password)
-
-            if (not user_info):
-                return prepare_api_response(401, 'Invalid username or password')
-
-            access_token: str = create_access_token(
-                identity=username,
-                expires_delta=datetime.timedelta(hours=24),
-                additional_claims={
-                    'roles': [roles.as_dict()['name'] for roles in user_info.user_roles],
-                    'username': username,
-                    'user_id': user_info.id
-                }
-            )
-
-            return prepare_api_response(
-                SUCCESS_CODE,
-                SUCCESS_MESSAGE,
-                data={'jwt': access_token}
-            )
-
-        except ValidationError as e:
-            return prepare_api_response(
-                VALIDATION_ERROR_CODE,
-                VALIDATION_ERROR_MESSAGE,
-                error=e.normalized_messages()
-            )
-
-        except Exception as e:
-            logger.error(traceback.format_exc())
-            return prepare_api_response(EXCEPTION_CODE, str(e))
-
-
 @ns.route('/add', methods=['POST'])
-class AddUser(Resource):
+class AddProduct(Resource):
 
     @ns.doc(security=SECURITY)
-    @ns.expect(*add_user_payload())
-    @ns.response(*add_user_response())
+    @ns.expect(*add_product_payload())
+    @ns.response(*add_product_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     @sanitized()
     def post(self, jwt_data):
         try:
-            validator = AddUserValidator()
+            validator = AddProductValidator()
             payload: dict = validator.load(request.get_json())
 
-            user_id: int = add_user(payload)
+            product_id: int = add_product(payload)
 
             return prepare_api_response(SUCCESS_CODE, INSERT_SUCCESS_MESSAGE)
 
@@ -108,20 +60,20 @@ class AddUser(Resource):
 
 
 @ns.route('/update', methods=['PATCH'])
-class UpdateUser(Resource):
+class UpdateProduct(Resource):
 
     @ns.doc(security=SECURITY)
-    @ns.expect(*update_user_payload())
-    @ns.response(*update_user_response())
+    @ns.expect(*update_product_payload())
+    @ns.response(*update_product_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     @sanitized()
     def patch(self, jwt_data):
         try:
-            validator = UpdateUserValidator()
+            validator = UpdateProductValidator()
             payload: dict = validator.load(request.get_json())
 
-            updated: bool = update_user(payload)
+            updated: bool = update_product(payload)
 
             if not updated:
                 return prepare_api_response(
@@ -142,25 +94,25 @@ class UpdateUser(Resource):
 
 
 @ns.route('/get', methods=['GET'])
-class GetUser(Resource):
+class GetProduct(Resource):
 
     @ns.doc(security=SECURITY)
-    @ns.expect(*get_user_payload())
-    @ns.response(*get_user_response())
+    @ns.expect(*get_product_payload())
+    @ns.response(*get_product_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     @sanitized()
     def get(self, jwt_data):
         try:
-            validator = GetUserValidator()
+            validator = GetProductValidator()
             arguments: dict = validator.load(request.args.to_dict())
 
-            user_info: ORM.User | None = get_user_by_id(arguments['id'])
+            product_info: Product | None = get_product_by_id(arguments['id'])
 
             return prepare_api_response(
                 SUCCESS_CODE,
                 GET_SUCCESS_MESSAGE,
-                data=user_info.as_dict()
+                data=product_info.as_dict()
             )
 
         except ValidationError as e:
@@ -176,34 +128,34 @@ class GetUser(Resource):
 
 
 @ns.route('/get-all', methods=['GET'])
-class GetAllUser(Resource):
+class GetAllProduct(Resource):
 
     @ns.doc(security=SECURITY)
-    @ns.response(*get_user_list_response())
+    @ns.response(*get_product_list_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     @sanitized()
     def get(self, jwt_data):
         try:
-            users_list = get_user_list()
+            products_list = get_product_list()
 
             return prepare_api_response(
                 SUCCESS_CODE,
                 GET_ALL_SUCCESS_MESSAGE,
-                data=[user.as_dict() for user in users_list]
+                data=[product.as_dict() for product in products_list]
             )
-        
+
         except Exception as e:
             logger.error(traceback.format_exc())
             return prepare_api_response(EXCEPTION_CODE, str(e))
 
 
 @ns.route('/delete', methods=['DELETE'])
-class DeleteUser(Resource):
+class DeleteProduct(Resource):
 
     @ns.doc(security=SECURITY)
-    @ns.expect(*delete_user_payload())
-    @ns.response(*delete_user_response())
+    @ns.expect(*delete_product_payload())
+    @ns.response(*delete_product_response())
     @jwt_required()
     @is_authorized([USER_ROLE.ADMIN])
     @sanitized()
