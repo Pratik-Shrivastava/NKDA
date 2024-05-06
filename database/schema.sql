@@ -38,3 +38,16 @@ CREATE TABLE
         created_at TIMESTAMP NOT NULL DEFAULT now(),
         FOREIGN KEY (user_id) REFERENCES nkda_user (id) ON DELETE CASCADE
     );
+-- Product schema starts here.
+CREATE TABLE
+    IF NOT EXISTS product (
+        product_id BIGSERIAL PRIMARY KEY NOT NULL,
+        product_name VARCHAR(255) NOT NULL,
+        product_description TEXT,
+        product_price FLOAT NOT NULL,
+        created_at BIGINT NOT NULL DEFAULT EXTRACT(EPOCH FROM NOW()) * 1000,
+        created_by VARCHAR(80) NOT NULL,
+        updated_at BIGINT
+        created_by VARCHAR(80) NOT NULL
+);
+-- Product schema ends here.
