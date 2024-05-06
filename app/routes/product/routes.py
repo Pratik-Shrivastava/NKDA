@@ -14,10 +14,10 @@ from app.decorators.sanitizer import sanitized
 from app.enum.user_role_enum import USER_ROLE
 from app.routes import api
 
-from app.routes.user.payload import *
-from app.routes.user.response import *
-from app.routes.user.dao_service import *
-from app.routes.user.validator import *
+from app.routes.product.payload import *
+from app.routes.product.response import *
+from app.routes.product.dao_service import *
+from app.routes.product.validator import *
 from app.utils.api_response import prepare_api_response
 
 

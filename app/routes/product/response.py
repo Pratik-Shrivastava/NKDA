@@ -53,7 +53,7 @@ def get_product_list_response() -> any:
     )
 
 
-def delete_user_response() -> any:
+def delete_product_response() -> any:
     return prepare_swagger_response(
         code=SUCCESS_CODE,
         message=DELETE_SUCCESS_MESSAGE,
