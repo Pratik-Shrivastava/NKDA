@@ -6,9 +6,9 @@ from app import db
 def add_product(product : dict) -> int | None:
     try:
         product_model = ORM.Product(
-            product_name = Product.get('product_name'),
-            product_description = Product.get('product_description'),
-            product_price = Product.get('product_price')
+            product_name = product.get('product_name'),
+            product_description = product.get('product_description'),
+            product_price = product.get('product_price')
         )
 
         db.session.add(product_model)
