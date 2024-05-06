@@ -8,7 +8,7 @@ from app.utils.api_response import prepare_swagger_response
 PRODUCT_RESPONSE_MODEL: any = api.model('user', {
     'id': fields.Integer,
     'product_name': fields.String,
-    'product_description':fields.Text,
+    'product_description':fields.String,
     'product_price':fields.Float,
     'created_by':fields.String,
 })
